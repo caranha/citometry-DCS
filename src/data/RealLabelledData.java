@@ -9,8 +9,6 @@ package data;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.Random;
-import java.io.*;
 import projection.*;
 
 public class RealLabelledData implements Iterable<ObservationReal> {
@@ -184,24 +182,59 @@ public class RealLabelledData implements Iterable<ObservationReal> {
 		return observations.iterator();
 	}
 
+	/** 
+	 * Adds a new observation
+	 * @param aux
+	 */
 	public void addObservation(ObservationReal aux) {
-		// TODO Auto-generated method stub
+		observations.add(aux);
 		
+		// Making sure the label vector has enough space
+		if (labels.size() <= aux.getLabel())
+			for (int i = labels.size(); i <= aux.getLabel(); i++)
+				labels.add(0);
+
+		// updating label count
+		Integer lc = labels.get(aux.getLabel())+1;		
+		labels.set(aux.getLabel(), lc);
+		
+		if (lc == 1) // new label
+			label_total++;
 	}
 
-	public ObservationReal get(Integer remove) {
-		// TODO Auto-generated method stub
-		return null;
+	/**
+	 * Gets an observation based on its index;
+	 * @param index
+	 * @return
+	 */
+	public ObservationReal get(Integer index) {		
+		return observations.get(index);
 	}
 
+	/**
+	 * Gets an ArrayList with all the observations.
+	 * This arraylist can be modified (but not the individual observations)
+	 * 
+	 * @return
+	 */
 	public ArrayList<ObservationReal> getArrayList() {
-		// TODO Auto-generated method stub
-		return null;
+		ArrayList<ObservationReal> ret = new ArrayList<ObservationReal>();
+		for (ObservationReal aux: observations)
+			ret.add(aux);
+		
+		return ret;
 	}
 	
-	// Returns the Y column
+	/**
+	 * Returns an Arraylist with only the labels of each observation
+	 * (the Y column of the data)
+	 * @return
+	 */
 	public ArrayList<Integer> getLabelsArray() {
-		// TODO Auto-generated method stub
-		return null;		
+		ArrayList<Integer> ret = new ArrayList<Integer>();
+		for (ObservationReal aux: observations)
+			ret.add(aux.getLabel());
+		
+		return ret;
 	}
 }
