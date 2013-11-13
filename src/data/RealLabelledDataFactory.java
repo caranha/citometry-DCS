@@ -45,6 +45,29 @@ public class RealLabelledDataFactory {
 	}
 	
 	/**
+	 * Selects a subset of the data where only the attributes indicated in the 
+	 * parameter are included. Null is returned if the attributes are invalid.
+	 * 
+	 * @param base The original data set
+	 * @param attributes The attributes to select from the original data set.
+	 * @return
+	 */
+	static public RealLabelledData selectAttributes(RealLabelledData base, int attributes[])
+	{
+		RealLabelledData ret = new RealLabelledData();
+		for (ObservationReal aux: base)
+		{
+			double[] values = new double[attributes.length];
+			for (int i = 0; i < attributes.length; i++)
+				values[i] = aux.getAttribute(attributes[i]);
+			ret.addObservation(new ObservationReal(aux.getLabel(),values));
+		}
+		return ret;
+	}
+	
+	
+	
+	/**
 	 * Creates partitions of this data collection based on the labels contained
 	 * in it.
 	 * 
@@ -155,9 +178,9 @@ public class RealLabelledDataFactory {
 	/**
 	 * Reads the data from a text file, and store it on a RealLabelledData collection.
 	 * 
-	 * @param filename: Full-path filename.
-	 * @param forcelabel: If this is -1, labels are assumed to be in the first column. Else, all observations receive this label.
-	 * @param split: expression that separates values in a row. If now, we use " +" (variable number of spaces)
+	 * @param filename Full-path filename.
+	 * @param forcelabel If this is -1, labels are assumed to be in the first column. Else, all observations receive this label.
+	 * @param split expression that separates values in a row. If now, we use " +" (variable number of spaces)
 	 * @return a RealLabelledData object with this data. Or null on failure.
 	 */
 	static public RealLabelledData dataFromTextFile(String filename, int forcelabel, String split)

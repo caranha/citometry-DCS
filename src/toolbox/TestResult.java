@@ -8,6 +8,7 @@ import java.util.Iterator;
 import projection.LinProj;
 import data.RealLabelledData;
 import data.ObservationReal;
+import data.RealLabelledDataFactory;
 import divmeasure.Dcs;
 
 public class TestResult {
@@ -22,34 +23,34 @@ public class TestResult {
 	 */
 	static public int[] bestAttributes(RealLabelledData data, int n)
 	{
-		if (n > data.attr_num)
+		if (n > data.getTotalAttributes())
 		{
 			System.err.println("bestAttributes error: Tried to select more attributes than available!");
 			System.exit(0);
 		}
 			
-		double attrib_index[] = new double[data.attr_num];
+		double attrib_index[] = new double[data.getTotalAttributes()];
 		int attrib_select[] = new int[n];
 		for (int i = 0; i < n; i++)
 			attrib_select[i] = -1;
 		
 		/* Selecting the n best attributes */
 		/* selection sort is used. This is inefficient */
-		for (int i=0; i < data.attr_num; i++)
+		for (int i=0; i < data.getTotalAttributes(); i++)
 		{
-			LinProj L = new LinProj(data.attr_num);
+			LinProj L = new LinProj(data.getTotalAttributes());
 			L.w[i] = 1;
 			
 			double[] x = new double[data.size()];
 			int[] y = new int[data.size()];
     	
-    		Iterator<ObservationReal> it = data.data.iterator();
+    		Iterator<ObservationReal> it = data.iterator();
     		int jj = 0;
     		while (it.hasNext())
     		{
     			ObservationReal u = it.next();
-    			x[jj] = L.project(u.d);
-    			y[jj] = u.c;
+    			x[jj] = L.project(u.getAttributeValues());
+    			y[jj] = u.getLabel();
     			jj++;
     		}
     		attrib_index[i] = Dcs.calculate(x, y);
@@ -91,8 +92,8 @@ public class TestResult {
 	static public void dumpProjection(RealLabelledData data, LinProj P1, LinProj P2, String opt)
 	{
 		// First Step: Separating the clusters, and transforming for the second dimension
-		RealLabelledData d1[] = data.breakClass();
-		RealLabelledData d2[] = data.breakClass();
+		RealLabelledData d1[] = RealLabelledDataFactory.partitionLabels(data);
+		RealLabelledData d2[] = RealLabelledDataFactory.partitionLabels(data);
 		
 		Parameter P = Parameter.getInstance();
 		String prefix = P.getParam("file_prefix");
@@ -105,14 +106,14 @@ public class TestResult {
 		for (int i = 0; i < d2.length; i++)
 			if (d1[i].size() > 0)
 			{				
-				d2[i].transform(P1);
-				Iterator<ObservationReal> it1 = d1[i].data.iterator();
-				Iterator<ObservationReal> it2 = d2[i].data.iterator();
+				d2[i].ortogonalProjection(P1);
+				Iterator<ObservationReal> it1 = d1[i].iterator();
+				Iterator<ObservationReal> it2 = d2[i].iterator();
 		    	try
 		    	{
 		    		BufferedWriter outfile = new BufferedWriter(new FileWriter(prefix+"projdata" + posfix+ ".c"+i));	
 		    		while (it1.hasNext())
-		    			outfile.write(P1.project(it1.next().d)+" "+P2.project(it2.next().d)+"\n"); //writing projectd data
+		    			outfile.write(P1.project(it1.next().getAttributeValues())+" "+P2.project(it2.next().getAttributeValues())+"\n"); //writing projectd data
 		    		outfile.close();
 				}	
 		    	catch(IOException e)
@@ -128,9 +129,8 @@ public class TestResult {
 	{
 		boolean[] ret = new boolean[test.size()];
 		// Create Projections, separated by cluster
-
-		RealLabelledData d1[] = data.breakClass();
-		RealLabelledData d2[] = data.breakClass();
+		RealLabelledData d1[] = RealLabelledDataFactory.partitionLabels(data);
+		RealLabelledData d2[] = RealLabelledDataFactory.partitionLabels(data);
 		Double m1[] = new Double[d1.length];
 		Double m2[] = new Double[d2.length];
 
@@ -138,16 +138,16 @@ public class TestResult {
 		for (int i = 0; i < d2.length; i++)
 			if (d1[i].size() > 0)
 			{				
-				d2[i].transform(P1);
-				Iterator<ObservationReal> it1 = d1[i].data.iterator();
-				Iterator<ObservationReal> it2 = d2[i].data.iterator();
+				d2[i].ortogonalProjection(P1);
+				Iterator<ObservationReal> it1 = d1[i].iterator();
+				Iterator<ObservationReal> it2 = d2[i].iterator();
 				double[] x1 = new double[d1[i].size()];
 				double[] x2 = new double[d2[i].size()];
 				int j = 0;
 		    	while (it1.hasNext())
 		    	{
-		    		x1[j] = P1.project(it1.next().d);
-		    		x2[j] = P2.project(it2.next().d);
+		    		x1[j] = P1.project(it1.next().getAttributeValues());
+		    		x2[j] = P2.project(it2.next().getAttributeValues());
 		    		j++;
 		    	}
 		    	m1[i] = Maths.median(x1);
@@ -155,8 +155,8 @@ public class TestResult {
 			}
 
 		// For each test data, calculate distance from all medians
-		Iterator<ObservationReal> itt1 = test.data.iterator();
-		Iterator<ObservationReal> itt2 = test.transform(P1).data.iterator();
+		Iterator<ObservationReal> itt1 = test.iterator();
+		Iterator<ObservationReal> itt2 = test.ortogonalProjection(P1).iterator();
 		
 		int i = 0;
 		while(itt1.hasNext())
@@ -167,8 +167,8 @@ public class TestResult {
 			double mindist = Double.MAX_VALUE;
 			int minindex = -1;
 
-			double x1 = P1.project(t1.d);
-			double x2 = P2.project(t2.d);
+			double x1 = P1.project(t1.getAttributeValues());
+			double x2 = P2.project(t2.getAttributeValues());
 			
 			// For each test data, calculate distance from all medians
 			for (int j = 0; j < d1.length; j++)
@@ -189,7 +189,7 @@ public class TestResult {
 				System.exit(1);
 			}
 			
-			ret[i] = (minindex == t1.c); // is the closest cluster the right one?			
+			ret[i] = (minindex == t1.getLabel()); // is the closest cluster the right one?			
 			i++;
 		}
 		

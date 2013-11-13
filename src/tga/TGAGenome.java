@@ -33,7 +33,7 @@ public class TGAGenome extends LinProj implements Comparable<TGAGenome> {
 		//maxdepth = (int)Math.floor(Math.log(d.attr_num)/Math.log(2))+2;
 		maxdepth = md;
 		fillrate = fr;
-		maxpar = d.attr_num;
+		maxpar = d.getTotalAttributes();
 		root = new TGANode();
 		root.generateTree(md, maxpar, 0, fr);
 		evalflag = true;
@@ -117,13 +117,13 @@ public class TGAGenome extends LinProj implements Comparable<TGAGenome> {
 		double[] x = new double[d.size()];
 		int[] y = new int[d.size()];
 		
-		Iterator<ObservationReal> it = d.data.iterator();
+		Iterator<ObservationReal> it = d.iterator();
 		int i = 0;
 		while (it.hasNext())
 		{
 			ObservationReal u = it.next();
-			x[i] = project(u.d);
-			y[i] = u.c;
+			x[i] = project(u.getAttributeValues());
+			y[i] = u.getLabel();
 			i++;
 	    }
 	    	    	

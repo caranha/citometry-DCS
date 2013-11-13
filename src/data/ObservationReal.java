@@ -57,6 +57,17 @@ public class ObservationReal {
 		return d.length	;
 	}
 	
+	/**
+	 * Returns a vector with all the attribute values
+	 * Do not change this vector.
+	 * 
+	 * @return
+	 */
+	public double[] getAttributeValues() {
+		return d;
+	}
+
+	
 	@Override
 	public String toString()
 	{
@@ -65,6 +76,7 @@ public class ObservationReal {
 			ret = ret + "," + d[i];			
 		return ret;
 	}
+
 
 
 }

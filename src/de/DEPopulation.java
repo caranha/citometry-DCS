@@ -72,7 +72,7 @@ public class DEPopulation {
 
 		for (int i = 0; i < size; i++)
 		{
-			Genome n = new Genome(d.attr_num);
+			Genome n = new Genome(d.getTotalAttributes());
 			n.init();
 			n.eval(d);
 			individual.add(n);

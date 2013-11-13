@@ -50,7 +50,7 @@ public class TGAPopulation {
 		if (param!=null)
 			maxdepth = Integer.parseInt(param);
 		else
-			maxdepth = (int)Math.floor(Math.log(d.attr_num)/Math.log(2)) + 2;
+			maxdepth = (int)Math.floor(Math.log(d.getTotalAttributes())/Math.log(2)) + 2;
 
 	}
 
@@ -64,7 +64,7 @@ public class TGAPopulation {
 		currgen = 0;
 		for (int i = 0; i < size; i++)
 		{
-			TGAGenome n = new TGAGenome(d.attr_num);
+			TGAGenome n = new TGAGenome(d.getTotalAttributes());
 			n.init(d, maxdepth,treedensity);
 			n.eval(d);
 			individual.add(n);
@@ -85,7 +85,6 @@ public class TGAPopulation {
 		if (currgen < ngens)
 		{	
 			currgen++;
-			TGAGenome tmp;
 			ArrayList<TGAGenome> nextgen = new ArrayList<TGAGenome>();
 
 			// Step 1 - Crossover

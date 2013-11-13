@@ -12,9 +12,6 @@ import data.RealLabelledData;
 import data.ObservationReal;
 import divmeasure.Dcs;
 import projection.LinProj;
-import toolbox.GAVISparam;
-
-import java.util.Iterator;
 import java.util.Random;
 
 public class Genome extends LinProj implements Comparable<Genome>
@@ -55,13 +52,11 @@ public class Genome extends LinProj implements Comparable<Genome>
 	public void init() 
     {
 		Random dice = new Random();
-		GAVISparam P = GAVISparam.getInstance();
-		String param;
-
-		// Not implemented yet
-//		param = P.getParam("dimension_penalty");
-//		if (param != null)
-//			param_penalty = Integer.parseInt(param);
+		
+		// TODO: Implement the below (probably not here?
+		//		param = P.getParam("dimension_penalty");
+		//		if (param != null)
+		//			param_penalty = Integer.parseInt(param);
 		
 		for (int i = 0; i < w.length; i++)
 		{
@@ -99,18 +94,17 @@ public class Genome extends LinProj implements Comparable<Genome>
  * Calculate the fitness of this genome for training data T.
  * @param T
  */
-    public void eval(RealLabelledData d)
+    public void eval(RealLabelledData data)
     {
-    	double[] x = new double[d.size()];
-    	int[] y = new int[d.size()];
+    	double[] x = new double[data.size()];
+    	int[] y = new int[data.size()];
     	
-    	Iterator<ObservationReal> it = d.data.iterator();
     	int i = 0;
-    	while (it.hasNext())
+    	
+    	for (ObservationReal aux: data)
     	{
-    		ObservationReal u = it.next();
-    		x[i] = project(u.d);
-    		y[i] = u.c;
+    		x[i] = project(aux.getAttributeValues());
+    		y[i] = aux.getLabel();
     		i++;
     	}
     	    	
