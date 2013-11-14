@@ -58,6 +58,7 @@ public class DEPopulation {
 		size = Integer.parseInt(p.getParameter("Individual Number", "50"));
 		F = Double.parseDouble(p.getParameter("DE F","0.8"));
 		C = Double.parseDouble(p.getParameter("DE C", "0.9"));
+		kernelsize = Integer.parseInt(p.getParameter("kernel size","1"));
 		
 		individual = new ArrayList<Genome>();		
 		d = dd;

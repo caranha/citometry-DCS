@@ -24,7 +24,6 @@ public class Genome extends LinProj implements Comparable<Genome>
 	public Genome(int size)
 	{
 		super(size);
-		
 	}
 	
 	public Genome(double[] d)

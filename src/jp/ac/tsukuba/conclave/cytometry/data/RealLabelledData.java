@@ -190,6 +190,14 @@ public class RealLabelledData implements Iterable<ObservationReal> {
 	public void addObservation(ObservationReal aux) {
 		observations.add(aux);
 		
+		if (attr_total == 0)
+			attr_total = aux.getAttributeSize();
+		else
+			if (attr_total != aux.getAttributeSize())
+			{
+				System.err.println("Error: Adding observations with different attribute sizes!");
+			}
+		
 		// Making sure the label vector has enough space
 		if (labels.size() <= aux.getLabel())
 			for (int i = labels.size(); i <= aux.getLabel(); i++)
