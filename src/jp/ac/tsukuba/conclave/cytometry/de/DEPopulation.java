@@ -1,4 +1,4 @@
-package de;
+package jp.ac.tsukuba.conclave.cytometry.de;
 /**
  * DEPopulation
  * 
@@ -17,16 +17,21 @@ package de;
  *  This DE is based on array genomes.
  */
 
-import data.*;
 import java.util.*;
 
-import toolbox.GAVISparam;
+import jp.ac.tsukuba.conclave.cytometry.data.*;
+import jp.ac.tsukuba.cs.conclave.utils.Parameter;
+
 
 public class DEPopulation {
 
-	public int size = 50; // size of the population
-	public int ngens = 300; // total number of generations
-	public int currgen; // current generation
+	Parameter p;
+	
+	int kernelsize; // TODO: remove this from here, make the fitness a function hook
+	
+	int size = 50; // size of the population
+	int ngens = 300; // total number of generations
+	int currgen; // current generation
 
 	double F = 0.8;
 	double C = 0.9;
@@ -46,13 +51,13 @@ public class DEPopulation {
 	/**
 	 * Initialize and load parameters.
 	 */
-	public DEPopulation(RealLabelledData dd)
+	public DEPopulation(RealLabelledData dd, Parameter param)
 	{
-		GAVISparam P = GAVISparam.getInstance();
-		ngens = P.DE_gen;
-		size = P.DE_pop;
-		F = P.DE_F;
-		C = P.DE_C;
+		p = param;
+		ngens = Integer.parseInt(p.getParameter("Generation Number", "300"));
+		size = Integer.parseInt(p.getParameter("Individual Number", "50"));
+		F = Double.parseDouble(p.getParameter("DE F","0.8"));
+		C = Double.parseDouble(p.getParameter("DE C", "0.9"));
 		
 		individual = new ArrayList<Genome>();		
 		d = dd;
@@ -74,7 +79,7 @@ public class DEPopulation {
 		{
 			Genome n = new Genome(d.getTotalAttributes());
 			n.init();
-			n.eval(d);
+			n.eval(d,kernelsize);
 			individual.add(n);
 		}
 		Collections.sort(individual);
@@ -156,7 +161,7 @@ public class DEPopulation {
 				child.w[i] = parent.w[i];
 			}	
 		
-		child.eval(d);
+		child.eval(d,kernelsize);
 		
 		if (child.fitness > parent.fitness)
 			return child;

@@ -1,4 +1,4 @@
-package de;
+package jp.ac.tsukuba.conclave.cytometry.de;
 /**
  * June/2008
  * Modified the Genome object to read parameters and calculate
@@ -8,11 +8,12 @@ package de;
  * October/2011 Heavily modified for Citometry projection use.
  */
 
-import data.RealLabelledData;
-import data.ObservationReal;
-import divmeasure.Dcs;
-import projection.LinProj;
 import java.util.Random;
+
+import jp.ac.tsukuba.conclave.cytometry.data.ObservationReal;
+import jp.ac.tsukuba.conclave.cytometry.data.RealLabelledData;
+import jp.ac.tsukuba.conclave.cytometry.divmeasure.Dcs;
+import jp.ac.tsukuba.conclave.cytometry.projection.LinProj;
 
 public class Genome extends LinProj implements Comparable<Genome>
 {
@@ -94,7 +95,7 @@ public class Genome extends LinProj implements Comparable<Genome>
  * Calculate the fitness of this genome for training data T.
  * @param T
  */
-    public void eval(RealLabelledData data)
+    public void eval(RealLabelledData data, int kernelsize)
     {
     	double[] x = new double[data.size()];
     	int[] y = new int[data.size()];
@@ -108,7 +109,7 @@ public class Genome extends LinProj implements Comparable<Genome>
     		i++;
     	}
     	    	
-    	fitness = Dcs.calculate(x, y);
+    	fitness = Dcs.calculate(x, y, kernelsize);
     	if (param_penalty == 1)
     	{
     		fitness = fitness*((w.length - count())/(w.length - 1.0));

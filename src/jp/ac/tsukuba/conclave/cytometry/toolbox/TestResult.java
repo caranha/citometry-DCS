@@ -1,15 +1,17 @@
-package toolbox;
+package jp.ac.tsukuba.conclave.cytometry.toolbox;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Iterator;
 
-import projection.LinProj;
-import data.RealLabelledData;
-import data.ObservationReal;
-import data.RealLabelledDataFactory;
-import divmeasure.Dcs;
+import jp.ac.tsukuba.conclave.cytometry.data.ObservationReal;
+import jp.ac.tsukuba.conclave.cytometry.data.RealLabelledData;
+import jp.ac.tsukuba.conclave.cytometry.data.RealLabelledDataFactory;
+import jp.ac.tsukuba.conclave.cytometry.divmeasure.Dcs;
+import jp.ac.tsukuba.conclave.cytometry.projection.LinProj;
+import jp.ac.tsukuba.cs.conclave.utils.Parameter;
+
 
 public class TestResult {
 
@@ -21,7 +23,7 @@ public class TestResult {
 	 * @param n number of attributes to be selected
 	 * @return
 	 */
-	static public int[] bestAttributes(RealLabelledData data, int n)
+	static public int[] bestAttributes(RealLabelledData data, int n, double kerneldivisor)
 	{
 		if (n > data.getTotalAttributes())
 		{
@@ -53,7 +55,7 @@ public class TestResult {
     			y[jj] = u.getLabel();
     			jj++;
     		}
-    		attrib_index[i] = Dcs.calculate(x, y);
+    		attrib_index[i] = Dcs.calculate(x, y, kerneldivisor);
     		
     		/* placing the new attribute in the "best" list */
     		int index = i;
@@ -89,14 +91,13 @@ public class TestResult {
 	 * @param P2
 	 * @return 
 	 */
-	static public void dumpProjection(RealLabelledData data, LinProj P1, LinProj P2, String opt)
+	static public void dumpProjection(RealLabelledData data, LinProj P1, LinProj P2, String opt, Parameter P)
 	{
 		// First Step: Separating the clusters, and transforming for the second dimension
 		RealLabelledData d1[] = RealLabelledDataFactory.partitionLabels(data);
 		RealLabelledData d2[] = RealLabelledDataFactory.partitionLabels(data);
 		
-		Parameter P = Parameter.getInstance();
-		String prefix = P.getParam("file_prefix");
+		String prefix = P.getParameter("file_prefix","");
 		String posfix = opt;
 		if (prefix == null)
 			prefix = "";

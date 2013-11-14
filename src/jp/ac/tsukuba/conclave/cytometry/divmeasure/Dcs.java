@@ -1,8 +1,7 @@
-package divmeasure;
+package jp.ac.tsukuba.conclave.cytometry.divmeasure;
 
 
-import toolbox.GAVISparam;
-import toolbox.Maths;
+import jp.ac.tsukuba.conclave.cytometry.toolbox.Maths;
 
 /***
  * Calculates the Cauchy-Schwartz divergence measure for multiple clusters
@@ -26,26 +25,16 @@ public class Dcs {
 	 * 
 	 */
 	//TODO: Optimize the shit out of this
-	public static double calculate(double[] v, int[] l)
+	public static double calculate(double[] v, int[] l, double kerneldivisor)
 	{
-		GAVISparam p = GAVISparam.getInstance();
-		
-		switch(p.divmeasure)
-		{
-		case 0: // use traditional DCS as div measure
-			return DCS(v,l);
-		case 1: // use DCS with penalty for mixed individuals
-			return lateralPenaltyDCS(v,l);
-		}
-		
-		System.err.println("ERROR in DCS.java: Could not select a div measure method! Unreachable code.");
-		return 0;
+		return DCS(v,l,kerneldivisor);
+
+		// TODO: Define how to parametrize the lateral penalty DCS
+		// return lateralPenaltyDCS(v,l);
 	}
 		
-	public static double DCS(double[] v, int[] l)
+	public static double DCS(double[] v, int[] l, double kerneldivisor)
 	{
-		GAVISparam p = GAVISparam.getInstance();
-
 		if (v.length != l.length)
 		{
 			System.err.println("Dcs Error: Data array and label array are of different sizes!");
@@ -90,7 +79,7 @@ public class Dcs {
 		for (int i = 0; i < maxlabel+1; i++)
 			if (size[i] > 1)
 			{
-				variance[i] = (variance[i]/(size[i] - 1))/p.kerneldivisor; // variance (kernel) is divided by a parameter
+				variance[i] = (variance[i]/(size[i] - 1))/kerneldivisor; // variance (kernel) is divided by a parameter
 			}
 			else 
 				variance[i] = 0;
@@ -138,9 +127,8 @@ public class Dcs {
 		return ret;
 	}
 
-	public static double lateralPenaltyDCS(double[] v, int[] l)
+	public static double lateralPenaltyDCS(double[] v, int[] l, double kerneldivisor)
 	{
-		GAVISparam p = GAVISparam.getInstance(); // global parameters class
 		
 		if (v.length != l.length)
 		{
@@ -218,7 +206,7 @@ public class Dcs {
 		for (int i = 0; i < maxlabel+1; i++)
 			if (size[i] > 1)
 			{
-				variance[i] = (variance[i]/(size[i] - 1))/p.kerneldivisor; // variance (kernel) is divided by a parameter
+				variance[i] = (variance[i]/(size[i] - 1))/kerneldivisor; // variance (kernel) is divided by a parameter
 			}
 			else 
 				variance[i] = 0;

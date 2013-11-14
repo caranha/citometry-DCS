@@ -1,7 +1,8 @@
-package tga;
+package jp.ac.tsukuba.conclave.cytometry.tga;
 
 import java.util.Random;
-import toolbox.IDGenerator;
+
+import jp.ac.tsukuba.conclave.cytometry.toolbox.IDGenerator;
 
 public class TGANode {
 

@@ -1,4 +1,4 @@
-package projection;
+package jp.ac.tsukuba.conclave.cytometry.projection;
 
 /***
  * This class stores a linear projection

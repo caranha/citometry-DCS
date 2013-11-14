@@ -5,11 +5,12 @@
  * 
  */
 
-package data;
+package jp.ac.tsukuba.conclave.cytometry.data;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-import projection.*;
+
+import jp.ac.tsukuba.conclave.cytometry.projection.*;
 
 public class RealLabelledData implements Iterable<ObservationReal> {
 	

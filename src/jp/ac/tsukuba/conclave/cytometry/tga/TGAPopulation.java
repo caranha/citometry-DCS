@@ -1,8 +1,9 @@
-package tga;
+package jp.ac.tsukuba.conclave.cytometry.tga;
 
-import data.RealLabelledData;
 import java.util.*;
-import toolbox.Parameter;
+
+import jp.ac.tsukuba.conclave.cytometry.data.RealLabelledData;
+import jp.ac.tsukuba.cs.conclave.utils.Parameter;
 
 
 
@@ -37,7 +38,7 @@ public class TGAPopulation {
 	 * Parameter comp is a node from a previous 
 	 * scenario, which is used for distance calculations.
 	 */
-	public TGAPopulation(RealLabelledData dd)
+	public TGAPopulation(RealLabelledData dd, Parameter p)
 	{
 		individual = new ArrayList<TGAGenome>();
 		d = dd;
@@ -45,8 +46,7 @@ public class TGAPopulation {
 		max_fitness = new double[ngens+1];
 		avg_fitness = new double[ngens+1];
 
-		Parameter p = Parameter.getInstance();
-		String param = p.getParam("maxdepth");
+		String param = p.getParameter("maxdepth",null);
 		if (param!=null)
 			maxdepth = Integer.parseInt(param);
 		else

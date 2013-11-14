@@ -1,4 +1,4 @@
-package toolbox;
+package jp.ac.tsukuba.conclave.cytometry.toolbox;
 
 public class IDGenerator {
 

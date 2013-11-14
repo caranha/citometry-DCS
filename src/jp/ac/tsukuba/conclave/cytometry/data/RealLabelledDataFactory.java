@@ -1,4 +1,4 @@
-package data;
+package jp.ac.tsukuba.conclave.cytometry.data;
 
 import java.io.BufferedReader;
 import java.io.File;

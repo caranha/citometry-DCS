@@ -1,12 +1,14 @@
-package testcode;
+package jp.ac.tsukuba.conclave.cytometry.runnable;
 
-import toolbox.*;
-import de.DEPopulation;
-import data.*;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
-import projection.*;
+
+import jp.ac.tsukuba.conclave.cytometry.data.*;
+import jp.ac.tsukuba.conclave.cytometry.de.DEPopulation;
+import jp.ac.tsukuba.conclave.cytometry.projection.*;
+import jp.ac.tsukuba.conclave.cytometry.toolbox.*;
+import jp.ac.tsukuba.cs.conclave.utils.Parameter;
 
 /***
  * Sandbox class. This class is just a hodgepodge of testing methods.
@@ -19,14 +21,14 @@ public class OldTesting {
 
 	public static void main(String[] args) {
 
-		GAVISparam P = GAVISparam.getInstance();		
+		Parameter P = new Parameter();
 		try {
-			P.load("/home/claus.aranha/Desktop/Citometria/misc_files/sample.par");
+			P.loadTextFile("/home/claus.aranha/Desktop/Citometria/misc_files/sample.par");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
-		TestBestXY();
+		TestBestXY(P);
 		//TestTriples();
 		//TestNormal();
 		//ListBestAttributes();
@@ -34,7 +36,7 @@ public class OldTesting {
 		
 	}
 	
-	static public void TestBestXY() // Selects best attributes separately for X and Y
+	static public void TestBestXY(Parameter P) // Selects best attributes separately for X and Y
 	{
 		
 		/* For each pair of diseases:
@@ -46,11 +48,9 @@ public class OldTesting {
 		 * Calculate Y
 		 */
 		
-		GAVISparam P = GAVISparam.getInstance();
-		
-		String trainfile = P.getParam("train_datafile");
-		String testfile = P.getParam("test_datafile");
-		String prefix = P.getParam("file_prefix");
+		String trainfile = P.getParameter("train_datafile",null);
+		String testfile = P.getParameter("test_datafile",null);
+		String prefix = P.getParameter("file_prefix",null);
 		
 		RealLabelledData train = RealLabelledDataFactory.dataFromTextFile(trainfile, -1, null);
 		RealLabelledData train_c[] = RealLabelledDataFactory.partitionLabels(train);
@@ -85,7 +85,8 @@ public class OldTesting {
 						test_data.merge(test_c[c2]);	
 					}
 					
-					int[] attrib_select_x = TestResult.bestAttributes(train_data, 5);
+					// TODO: parametrize kernel divisor (1 here)
+					int[] attrib_select_x = TestResult.bestAttributes(train_data, 5, 1);
 					RealLabelledData train_data_x = RealLabelledDataFactory.selectAttributes(train_data, attrib_select_x);
 
 					output.write("Best Attributes for X: ");					
@@ -94,23 +95,25 @@ public class OldTesting {
 					output.write("\nBest Attributes for Y: ");
 					
 					
+					int repeats = Integer.parseInt(P.getParameter("Repetition Number","1"));
+					
 					int[] totalhits = new int[test_data.size()];
-					double[] fitness1 = new double[P.repeats];
+					double[] fitness1 = new double[repeats];
 					double meanfitness1 = 0;
-					double[] fitness2 = new double[P.repeats];
+					double[] fitness2 = new double[repeats];
 					double meanfitness2 = 0;
-					double[] hits = new double[P.repeats];
+					double[] hits = new double[repeats];
 					double meanhits = 0;
 
-					String[] proj1 = new String[P.repeats];
-					String[] proj2 = new String[P.repeats];
+					String[] proj1 = new String[repeats];
+					String[] proj2 = new String[repeats];
 
 					// -- for each pair of classes, run repeats times
-					for (int k = 0; k < P.repeats; k++)
+					for (int k = 0; k < repeats; k++)
 					{
 						System.out.print(".");
 						// first projection
-						DEPopulation depop = new DEPopulation(train_data_x);
+						DEPopulation depop = new DEPopulation(train_data_x,P);
 						depop.initPopulation();						
 						while (depop.runGeneration() >= 0);
 
@@ -125,7 +128,8 @@ public class OldTesting {
 						RealLabelledData dproj = train_data.ortogonalProjection(P1);
 						
 						// calculate the best 5 attributes of the new projection
-						int[] attrib_select_y = TestResult.bestAttributes(dproj, 5);
+						// TODO: Parametrize kernel divisor (here 1)
+						int[] attrib_select_y = TestResult.bestAttributes(dproj, 5, 1);
 						RealLabelledData train_data_y = RealLabelledDataFactory.selectAttributes(dproj, attrib_select_y);
 
 						// writing the best attributes for Y for this run.
@@ -133,7 +137,7 @@ public class OldTesting {
 						for (int ki = 0; ki < attrib_select_y.length; ki++)
 							output.write(attrib_select_y[ki] + " ");
 						
-						DEPopulation depop2 = new DEPopulation(train_data_y);
+						DEPopulation depop2 = new DEPopulation(train_data_y,P);
 						depop2.initPopulation();
 						while (depop2.runGeneration() >= 0);
 
@@ -168,17 +172,17 @@ public class OldTesting {
 						fiterror2.write(depop2.best.fitness + " " + nhits + "\n");
 
 						// -- for each run, print projection files
-						TestResult.dumpProjection(train_data, P1, P2, "_"+c1+"_"+c2+"_train"+k);
-						TestResult.dumpProjection(test_data, P1, P2, "_"+c1+"_"+c2+"_test"+k);
+						TestResult.dumpProjection(train_data, P1, P2, "_"+c1+"_"+c2+"_train"+k, P);
+						TestResult.dumpProjection(test_data, P1, P2, "_"+c1+"_"+c2+"_test"+k, P);
 
 						proj1[k] = ((LinProj)depop.best).dump();
 						proj2[k] = ((LinProj)depop2.best).dump();
 
 					} // loop for running repeat times
 
-					output.write("\nFitness1 --  mean: "+meanfitness1/P.repeats+"  deviation: "+Maths.deviation(fitness1)+"\n");
-					output.write("Fitness2 --  mean: "+meanfitness2/P.repeats+"  deviation: "+Maths.deviation(fitness2)+"\n");
-					output.write("Hits     --  mean: "+meanhits/P.repeats+"  deviation: "+Maths.deviation(hits)+"\n");
+					output.write("\nFitness1 --  mean: "+meanfitness1/repeats+"  deviation: "+Maths.deviation(fitness1)+"\n");
+					output.write("Fitness2 --  mean: "+meanfitness2/repeats+"  deviation: "+Maths.deviation(fitness2)+"\n");
+					output.write("Hits     --  mean: "+meanhits/repeats+"  deviation: "+Maths.deviation(hits)+"\n");
 					output.write("Hits per case: ");
 					for (int ki = 0; ki < totalhits.length; ki++)
 						output.write(totalhits[ki] + " ");

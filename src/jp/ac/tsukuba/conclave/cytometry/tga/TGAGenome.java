@@ -1,12 +1,11 @@
-package tga;
+package jp.ac.tsukuba.conclave.cytometry.tga;
 
 import java.util.Iterator;
+import jp.ac.tsukuba.conclave.cytometry.data.ObservationReal;
+import jp.ac.tsukuba.conclave.cytometry.data.RealLabelledData;
+import jp.ac.tsukuba.conclave.cytometry.divmeasure.Dcs;
+import jp.ac.tsukuba.conclave.cytometry.projection.LinProj;
 
-import data.RealLabelledData;
-import data.ObservationReal;
-import divmeasure.Dcs;
-import projection.LinProj;
-import toolbox.Parameter;
 
 public class TGAGenome extends LinProj implements Comparable<TGAGenome> {
 
@@ -17,13 +16,13 @@ public class TGAGenome extends LinProj implements Comparable<TGAGenome> {
 	
 	// parametros
 	double fillrate = 0.8;
+	int additive_tree = 0;
 	
 	boolean evalflag = true; // if this is true, this genome needs to be evalued again (crossover/mutation);
 	
 	public TGAGenome(int size) {
 		super(size);
 	}
-
 
 	/**
 	 * Initializes a random genome.
@@ -102,12 +101,8 @@ public class TGAGenome extends LinProj implements Comparable<TGAGenome> {
 		if (evalflag == false)
 			return;
 
-		int alt_w = 0;
-		
-		Parameter p = Parameter.getInstance();
-		String param = p.getParam("additive_tree");
-		if (param != null)
-			alt_w = Integer.parseInt(param);
+		// TODO: Parametrize this in a better way
+		int alt_w = additive_tree;
 		
 		if (alt_w == 0)
 			w = root.getArray();
@@ -126,8 +121,9 @@ public class TGAGenome extends LinProj implements Comparable<TGAGenome> {
 			y[i] = u.getLabel();
 			i++;
 	    }
-	    	    	
-		fitness = Dcs.calculate(x, y);
+		
+		// TODO: Parametrize kernel width (1)
+		fitness = Dcs.calculate(x, y, 1);
 		evalflag = false;
 	}
 
